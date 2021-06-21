@@ -297,16 +297,56 @@ public class Game implements Serializable {
 	 * @return the player who has won the game
 	 */
 	public Player sendWinner() {
-		int vptemp = 0;
+		int vptemp;
 		Player winner = players[0];
+		int[][] points = {players[0].earnEndOfGame(), players[1].earnEndOfGame(),
+				players[2].earnEndOfGame(), players[3].earnEndOfGame()};
 
-		for ( Player player : players ) {
-			player.earnEndOfGame();
-			if ( vptemp < player.getNbPtsVic() ) {
-				vptemp = player.getNbPtsVic();
-				winner = player;
+		boolean tmp = true;
+		// we check if there is an equality with the final victory points
+		for ( int i = 1 ; i < 4 ; i++ ) {
+			if ( points[i][0] == points[i-1][0] ) {
+				tmp = false;
 			}
 		}
+		// if there are not, we look for the winner
+		if ( tmp ) {
+			vptemp = points[0][0];
+			for ( int i = 0 ; i < 4 ; i++ ) {		// Yes a for loop is not the best here
+				if ( vptemp < points[i][0] ) {		// but there are only 4 iterations
+					vptemp = points[i][0];			// so it doesn't change anything.
+					winner = players[i];
+				}
+			}
+		// if there is an equality, we check the victory points without the ecus
+		} else {
+			tmp = true;
+			for ( int i = 1 ; i < 4 ; i++ ) {
+				if ( points[i][1] == points[i-1][1] ) {
+					tmp = false;
+				}
+			}
+			if ( tmp ) {
+				vptemp = points[0][1];
+				for ( int i = 0 ; i < 4 ; i++ ) {
+					if ( vptemp < points[i][1] ) {
+						vptemp = points[i][1];
+						winner = players[i];
+					}
+				}
+			// if there is still an equality, we check the ecus of each player
+			} else {
+				vptemp = points[0][2];
+				for ( int i = 0 ; i < 4 ; i++ ) {
+					if ( vptemp < points[i][2] ) {
+						vptemp = points[i][2];
+						winner = players[2];
+					}
+				}
+			}
+		}
+
+
 		return winner;
 	}
 
