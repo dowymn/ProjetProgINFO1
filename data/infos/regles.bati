@@ -1,0 +1,17 @@
+Les joueurs doivent accumuler le plus de points de victoire en construisant des bâtiments.
+
+| LES CARTES
+Il y a 42 cartes Ouvriers et 42 cartes Bâtiments (dont 8 machines).
+Elles possèdent toutes des caractéristiques uniques, notamment les points qu'elles rapportent, les ressources nécessaires à leur fabrication ou encore les ressources qu'elles produisent.
+
+| LANCEMENT DU JEU
+Chaque joueur reçoit aléatoirement une carte Apprenti.
+Chaque joueur reçoit 10 écus.
+
+| TOUR DE JEU
+Chaque joueur dispose lors de son tous de jeu de 3 actions gratuites auxquelles il peut, s'il le souhaite, ajouter une ou plusieurs actions payantes qui coûtent chacune 5 écus.
+Avec ses actions, le joueur peut :
+- ouvrir un chantier
+- recruter un ouvrier
+- envoyer travailler un ouvrier
+- prendre un ou plusieurs écus
