@@ -1,10 +1,12 @@
 package view;
 
 import model.Game;
+import model.Player;
 import util.Batview;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 
 /**
  * [ M2107 - Projet de programmation ] Les Bâtisseurs : Moyen-Âge
@@ -22,6 +24,9 @@ public class LesBatisseurs extends JFrame {
 	private NouvellePartie nouvellePartie;
 	private ReprendrePartie reprendrePartie;
 	private Plateau plateau;
+	private FinDuJeu finDuJeu;
+
+	private boolean[] tutos;
 
 	/**
 	 * Initializes the game and calls the initialization() method.
@@ -34,7 +39,7 @@ public class LesBatisseurs extends JFrame {
 		Dimension dimWindow = new Dimension(1500,900);
 		this.setPreferredSize(dimWindow);
 		this.setMinimumSize(dimWindow);
-		//this.setResizable(false);
+		this.setAlwaysOnTop(true);
 
 		initialization();
 		this.add(cards);
@@ -57,7 +62,6 @@ public class LesBatisseurs extends JFrame {
 		this.menuJouer = new MenuJouer(this);
 		this.nouvellePartie = new NouvellePartie(this);
 		this.reprendrePartie = new ReprendrePartie(this);
-		//this.plateau = new Plateau(this);
 
 		this.cardLayout = new CardLayout();
 		this.cards = new JPanel(new CardLayout());
@@ -66,7 +70,9 @@ public class LesBatisseurs extends JFrame {
 		cards.add(menuJouer,"menuJouer");
 		cards.add(nouvellePartie,"nouvellePartie");
 		cards.add(reprendrePartie,"reprendrePartie");
-		//cards.add(plateau,"plateau");
+
+		this.tutos = new boolean[8];
+		Arrays.fill(tutos, true);
 
 	}
 
@@ -75,21 +81,51 @@ public class LesBatisseurs extends JFrame {
 	 * @param pageName the new page which has to be shown to the player
 	 */
 	public void changeView(String pageName) {
+		if ( pageName.equals("reprendrePartie") ) {
+			cards.remove(reprendrePartie);
+			reprendrePartie = new ReprendrePartie(this);
+			cards.add(reprendrePartie, "reprendrePartie");
+		}
 		cardLayout = (CardLayout) cards.getLayout();
 		cardLayout.show(cards,pageName);
 	}
 
 	/**
 	 * Allows to change the current view and launch a game.
+	 * Is only used to launch the first instance of the game board.
 	 * @param pageName the name of the page
 	 * @param game the game instance
 	 */
 	public void changeView(String pageName, Game game) {
-		plateau = new Plateau(this, game);
+		plateau = new Plateau(this, game, tutos, 1, false);
 		cards.add(plateau, "plateau");
 
-		cardLayout = (CardLayout) cards.getLayout();
-		cardLayout.show(cards,pageName);
+		changeView(pageName);
+	}
+
+	/**
+	 * Allows to change the current view and the end
+	 * Is only used to launch the first instance of the game board.
+	 * @param pageName the name of the page
+	 * @param winner the player who has won the game
+	 */
+	public void changeView(String pageName, Player winner) {
+		finDuJeu = new FinDuJeu(this, winner);
+		cards.add(finDuJeu,"finDuJeu");
+
+		changeView(pageName);
+	}
+
+	/**
+	 * Allows to refresh the game board.
+	 * @param game the game instance
+	 * @param noTour the turn number
+	 */
+	public void newPlateauInstance(Game game, int noTour, boolean end) {
+		cards.remove(plateau);
+		this.plateau = new Plateau(this, game, tutos, noTour, end);
+		cards.add(plateau, "plateau");
+		changeView("plateau");
 	}
 
 }

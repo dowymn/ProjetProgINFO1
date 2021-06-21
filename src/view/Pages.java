@@ -122,6 +122,20 @@ public abstract class Pages extends JPanel {
 	}
 
 	/**
+	 * Sets an image to a button, because the options allowed by swing are ugly.
+	 * Is used for the different buttons available on the game board.
+	 * @param button the button
+	 * @param image the ImageIcon
+	 */
+	public void setCardBouton(JButton button, ImageIcon image) {
+		button.setText("");
+		button.setIcon(image);
+		button.setOpaque(false);
+		button.setBorderPainted(false);
+		button.setContentAreaFilled(false);
+	}
+
+	/**
 	 * Sets an image to a label.
 	 * @param label the label
 	 * @param imageName the image name

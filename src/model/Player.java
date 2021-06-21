@@ -2,6 +2,7 @@ package model;
 
 import util.Utili;
 
+import javax.swing.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +19,9 @@ public abstract class Player implements Serializable {
 
 	private final String playerName;
 	protected final Game game;
+	protected final boolean graphical;
+
+	private final boolean isBot;
 
 	private ArrayList<WorkerCard> playerWorkers;
 	private ArrayList<BuildingCard> playerBuildings;
@@ -35,7 +39,10 @@ public abstract class Player implements Serializable {
 	 * @param game the game the player is in
 	 * @param playerName the player's name
 	 */
-	public Player(Game game, String playerName) {
+	public Player(Game game, String playerName, boolean graphical, boolean isBot) {
+
+		this.graphical = graphical;
+		this.isBot = isBot;
 
 		if ( playerName == null ) {
 			System.err.println("Error : Player() : playerName is null. ");
@@ -85,6 +92,7 @@ public abstract class Player implements Serializable {
 					ok = true;
 					game.getAvailableWorkers().remove(i); // it is removed from the availableCards list
 					playerWorkers.add(worker); // and it is added to he playerCards list
+					worker.changeWork(false);
 				}
 			}
 			i++;
@@ -184,8 +192,8 @@ public abstract class Player implements Serializable {
 				sumTuile += mach.getTuileProd();
 			}
 
-			if ( sumBois >= building.getBoisNec() && sumPierre == building.getPierreNec()
-			&& sumSavoir == building.getSavoirNec() && sumTuile == building.getTuileNec() ) {
+			if ( sumBois >= building.getBoisNec() && sumPierre >= building.getPierreNec()
+			&& sumSavoir >= building.getSavoirNec() && sumTuile >= building.getTuileNec() ) {
 				finishBuilding(building);
 			}
 
@@ -206,8 +214,8 @@ public abstract class Player implements Serializable {
 				sumTuile += mach.getTuileProd();
 			}
 
-			if ( sumBois >= machine.getBoisNec() && sumPierre == machine.getPierreNec()
-					&& sumSavoir == machine.getSavoirNec() && sumTuile == machine.getTuileNec() ) {
+			if ( sumBois >= machine.getBoisNec() && sumPierre >= machine.getPierreNec()
+					&& sumSavoir >= machine.getSavoirNec() && sumTuile >= machine.getTuileNec() ) {
 				finishMachine(machine);
 			}
 
@@ -218,39 +226,61 @@ public abstract class Player implements Serializable {
 	 * Allows to send a worker to work on a building by calling the addWorker() method from the BuildingCard or MachineCard class.
 	 * The good one is chosen by checking the type of the card given as a parameter.
 	 * If the worker has been sent to work, returns true. If the worker was already working on another building and then can't be sent to work on the wanted one, returns false.
-	 * @param worker the worker
+	 * @param wmCard the worker / machine
 	 * @param card the building
-	 * @return true if the worker has been sent to work on the building, else false
 	 */
-	public boolean sendWorkerToWork(WorkerCard worker, Card card) {
-		boolean done = false;
+	public void sendWorkerToWork(Card wmCard, Card card) {
 
+		// rule of the actions to use to send a worker on a construction
 		if ( constructionTurn.containsKey(card) ) {
 			constructionTurn.replace(card, constructionTurn.get(card)+1);
 		} else {
 			constructionTurn.put(card,1);
 		}
 
-		if ((nbEcus - worker.getEcusAPayer()) >= 0 && decActions(constructionTurn.get(card))) {
-			if (card.getType() == TypeCard.Building) {
-				done = ((BuildingCard) card).addWorker(worker);
-			} else if (card.getType() == TypeCard.Machine) {
-				done = ((MachineCard) card).addWorker(worker);
+		if ( wmCard.getType() == TypeCard.Worker ) {
+			WorkerCard worker = (WorkerCard) wmCard;
+			if ((nbEcus - worker.getEcusAPayer()) >= 0 && decActions(constructionTurn.get(card))) {
+				if (card.getType() == TypeCard.Building) {
+					if (!earnEcus(-worker.getEcusAPayer())) {
+						actions += 1;
+						if (!graphical) {
+							System.out.println("Vous n'avez plus assez d'écus pour envoyer l'ouvrier au travail.");
+							System.out.println("Utilisez votre action pour autre chose.");
+						} else {
+							JOptionPane.showMessageDialog(null, "Tu n'as pas assez d'écus pour envoyer l'ouvrier au travail.");
+						}
+					} else {
+						((BuildingCard) card).addWorker(worker);
+					}
+
+				} else if (card.getType() == TypeCard.Machine) {
+					if (!earnEcus(-worker.getEcusAPayer())) {
+						actions += 1;
+						if (!graphical) {
+							System.out.println("Vous n'avez plus assez d'écus pour envoyer l'ouvrier au travail.");
+							System.out.println("Utilisez votre action pour autre chose.");
+						} else {
+							JOptionPane.showMessageDialog(null, "Tu n'as pas assez d'écus pour envoyer l'ouvrier au travail.");
+						}
+					} else {
+						((MachineCard) card).addWorker(worker);
+					}
+				}
+			}
+		} else if ( wmCard.getType() == TypeCard.Machine ) {
+			MachineCard worker = (MachineCard) wmCard;
+			if (decActions(constructionTurn.get(card))) {
+				if (card.getType() == TypeCard.Building) {
+					((BuildingCard) card).addMachine(worker);
+
+				} else if (card.getType() == TypeCard.Machine) {
+					((MachineCard) card).addMachine(worker);
+				}
 			}
 		}
 
-		if ( done ) {
-			if ( !earnEcus(-worker.getEcusAPayer()) ) {
-				actions += 1;
-				done = false;
-				System.out.println("Vous n'avez plus assez d'écus pour envoyer l'ouvrier au travail.");
-				System.out.println("Utilisez votre action pour autre chose.");
-			} else {
-				isFinishedBuilding(card);
-			}
-		}
-
-		return done;
+		isFinishedBuilding(card);
 	}
 
 	/**
@@ -321,29 +351,41 @@ public abstract class Player implements Serializable {
 		int rest = actions - howmany;
 
 		if ( rest < 0 ) {
-			System.out.println("Attention ! Tu n'as pas assez d'actions, il te faudra payer " + rest*(-5) + " ecus.");
-			System.out.println("1: Payer\n2: Ne rien faire");
-			String line;
-			do {
+			if ( !graphical ) {
 
-				line = scan.nextLine();
-				if ( Utili.intIs(line,1) ) {
-					if ( this.nbEcus-(-5)*rest > 0 ) {
-						this.earnEcus(-(-5) * rest);
-						this.actions = 0;
-						done = true;
-					} else {
-						System.out.println("Tu n'as pas assez d'écus !");
+				System.out.println("Attention ! Tu n'as pas assez d'actions, il te faudra payer " + rest * (-5) + " ecus.");
+				System.out.println("1: Payer\n2: Ne rien faire");
+				String line;
+				do {
+
+					line = scan.nextLine();
+					if (Utili.intIs(line, 1)) {
+						if (this.nbEcus - (-5) * rest >= 0) {
+							this.earnEcus(-(-5) * rest);
+							this.actions = 0;
+							done = true;
+						} else {
+							System.out.println("Tu n'as pas assez d'écus !");
+						}
+					} else if (Utili.intIs(line, 2)) {
+						System.out.println("Aucun écu ne t'a été déboursé et aucune action n'a été effectuée.");
 					}
-				} else if ( Utili.intIs(line,2) ) {
-					System.out.println("Aucun écu ne t'a été déboursé et aucune action n'a été effectuée.");
-				}
 
-			} while ( !Utili.intIsInto(line,1,2) );
+				} while (!Utili.intIsInto(line, 1, 2));
+
+			} else if ( !isBot ){
+				int rep = JOptionPane.showConfirmDialog(null,"Tu n'as pas assez d'actions. Souhaites-tu dépenser " + rest * (-5) + " écus ?","Acheter des actions",JOptionPane.YES_NO_OPTION);
+				if ( rep == 0 && this.nbEcus - (-5) * rest >= 0 ) {
+					this.earnEcus(-(-5) * rest);
+					this.actions = 0;
+					done = true;
+				} else if ( rep == 0 && this.nbEcus - (-5) * rest < 0 ) {
+					JOptionPane.showMessageDialog(null,"Tu n'as pas assez d'écus");
+				}
+			}
 		} else {
 			this.actions -= howmany;
 			done = true;
-			//System.out.println("Il te reste " + actions + " actions.");
 		}
 
 		return done;
@@ -358,6 +400,13 @@ public abstract class Player implements Serializable {
 	}
 
 	/**
+	 * Resets the constructionTurn hashmap.
+	 */
+	public void resetConstructionTurn() {
+		constructionTurn.clear();
+	}
+
+	/**
 	 * Allows the player to earn ecus.
 	 * @param ecus the number of ecus earned by the player.
 	 */
@@ -368,7 +417,11 @@ public abstract class Player implements Serializable {
 			this.nbEcus += ecus;
 			done = true;
 		} else {
-			System.out.println("Vous n'avez pas assez d'écus pour effectuer cette action.");
+			if ( !graphical ) {
+				System.out.println("Vous n'avez pas assez d'écus pour effectuer cette action.");
+			} else if ( !isBot ) {
+				JOptionPane.showMessageDialog(null,"Tu n'as pas assez d'écus");
+			}
 		}
 
 		return done;
@@ -403,6 +456,18 @@ public abstract class Player implements Serializable {
 		tab[0] = nbPtsVic;
 
 		return tab;
+	}
+
+	/**
+	 * Allows the player to buy a new action with his ecus.
+	 */
+	public void buyAction(int nb) {
+		if ( (this.nbEcus + (-5) * nb) >= 0 ) {
+			this.earnEcus((-5) * nb);
+			this.actions += nb;
+		} else {
+			JOptionPane.showMessageDialog(null,"Tu n'as pas assez d'écus");
+		}
 	}
 
 
@@ -467,7 +532,7 @@ public abstract class Player implements Serializable {
 		ArrayList<MachineCard> list = new ArrayList<>();
 
 		for ( MachineCard card : playerMachines ) {
-			if ( !card.getIsUsed() ) {
+			if ( card.getState() == BuildingState.FINISHED && !card.getIsUsed() ) {
 				list.add( card );
 			}
 		}
@@ -508,6 +573,57 @@ public abstract class Player implements Serializable {
 	}
 
 	/**
+	 * Allows to get the in progress buildings AND machines.
+	 * @return an ArrayList<Card> that contains all the player's in progress constructions
+	 */
+	public ArrayList<Card> getChantiers() {
+		ArrayList<Card> list = new ArrayList<>();
+
+		for ( MachineCard card : playerMachines ) {
+			if ( card.getState() == BuildingState.INPROGRESS ) {
+				list.add( card );
+			}
+		}
+		for ( BuildingCard card : playerBuildings ) {
+			if ( card.getState() == BuildingState.INPROGRESS ) {
+				list.add( card );
+			}
+		}
+
+		return list;
+	}
+
+	/**
+	 * Allows to get all the free workers AND machines.
+	 * Is used in the graphical version.
+	 * @return an ArrayList<Card>
+	 */
+	public ArrayList<Card> getFreeWM() {
+		ArrayList<Card> list = new ArrayList<>();
+
+		list.addAll(getFreeWorkers());
+		list.addAll(getFreeMachines());
+
+		return list;
+	}
+
+	/**
+	 * Allows to get the finished buildings.
+	 * @return an ArrayList<BuildingCard>
+	 */
+	public ArrayList<BuildingCard> getFinishedBuildings() {
+		ArrayList<BuildingCard> list = new ArrayList<>();
+
+		for ( BuildingCard card : playerBuildings ) {
+			if ( card.getState() == BuildingState.FINISHED ) {
+				list.add( card );
+			}
+		}
+
+		return list;
+	}
+
+	/**
 	 * @return the number of ecus the player has
 	 */
 	public int getNbEcus() {
@@ -527,4 +643,12 @@ public abstract class Player implements Serializable {
 	public int getActions() {
 		return actions;
 	}
+
+	/**
+	 * @return true if the player is a bot, else false
+	 */
+	public boolean getIsBot() {
+		return this.isBot;
+	}
+
 }

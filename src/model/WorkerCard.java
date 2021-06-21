@@ -44,6 +44,8 @@ public class WorkerCard extends Card {
 		this.savoirProd = savoir;
 		this.tuileProd = tuile;
 
+		this.isWorking = false;
+
 		initImage(imageName);
 	}
 

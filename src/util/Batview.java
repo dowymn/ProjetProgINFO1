@@ -17,7 +17,6 @@ import java.io.IOException;
 public class Batview {
 
     // PATHS
-    public static final String PATHLIBS = "./data/libs/";
     public static final String PATHINFOS = "./data/infos/";
     public static final String PATHIMAGE = "./data/images/";
     public static final String PATHCARDS = "./data/cards/";
@@ -35,7 +34,8 @@ public class Batview {
     public static final Color transpBlackColor = new Color(0, 0, 0, 55);
 
     // FONTS
-    public final static Font repPartie = new Font("Laksaman", Font.PLAIN, 20);
+    public final static Font littleFont = new Font("Laksaman", Font.PLAIN, 20);
+    public final static Font repPartie = new Font("Laksaman", Font.PLAIN, 26);
     public final static Font jrNvlPartie = new Font("Laksaman", Font.BOLD, 24);
     public final static Font hdrNvlPartie = new Font("Z003-MediumItalic", Font.PLAIN, 45);
     public final static Font gameTitle = new Font("Z003-MediumItalic", Font.PLAIN, 70);
@@ -44,7 +44,8 @@ public class Batview {
     // BORDERS
     public final static LineBorder repPartieBorder = new LineBorder(redColor,2);
     public final static EmptyBorder retourBorder = new EmptyBorder(new Insets(15,0,15,0));
-    public final static EmptyBorder piocheBorder = new EmptyBorder(new Insets(5,5,5,5));
+    public final static LineBorder piocheBorder = new LineBorder(Color.WHITE,2);
+    public final static EmptyBorder piocheBorderE = new EmptyBorder(new Insets(5,5,5,5));
     public final static EmptyBorder emptyBorder = new EmptyBorder(new Insets(0,0,0,0));
 
     // IMAGES

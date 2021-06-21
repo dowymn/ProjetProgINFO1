@@ -1,7 +1,9 @@
 package view;
 
 import control.*;
+import model.Game;
 import util.Batview;
+import util.SaveGame;
 import util.Utili;
 
 import javax.swing.*;
@@ -116,8 +118,6 @@ public class ReprendrePartie extends Pages {
 	}
 
 
-
-
 	/**
 	 * Defines what to do then the returnButton is clicked (i.e. which page will be accessed).
 	 */
@@ -130,7 +130,19 @@ public class ReprendrePartie extends Pages {
 	 * @param gameName the name of the game
 	 */
 	public void launchGame(String gameName) {
+		Game game = SaveGame.getSavedGame(gameName);
+		System.out.println(game==null);
+		getWindow().changeView("plateau", game);
+	}
 
+
+	//-----[ GETTERS
+
+	/**
+	 * @return the games buttons list
+	 */
+	public ArrayList<JButton> getPartiesButtons() {
+		return partiesButtons;
 	}
 
 }

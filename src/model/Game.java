@@ -35,7 +35,7 @@ public class Game implements Serializable {
 	 * @param PName3 the player3's name
 	 * @param PName4 the player4's name
 	 */
-	public Game(PlayerMode mode, String PName1, String PName2, String PName3, String PName4) {
+	public Game(PlayerMode mode, boolean graphical, String PName1, String PName2, String PName3, String PName4) {
 
 		if ( mode == null ) {
 			throw new IllegalArgumentException("Error : Game() : mode mustn't be null.");
@@ -47,11 +47,11 @@ public class Game implements Serializable {
 
 		// creation of the players
 		if ( mode.toString().length() == 4 ) {
-			createPlayers(PName1, PName2, PName3, PName4, mode);
+			createPlayers(graphical, PName1, PName2, PName3, PName4, mode);
 		} else if ( mode.toString().length() == 3 ) {
-			createPlayers(PName1,PName2,PName3,mode);
+			createPlayers(graphical, PName1,PName2,PName3,mode);
 		} else if ( mode.toString().length() == 2 ) {
-			createPlayers(PName1,PName2,mode);
+			createPlayers(graphical, PName1,PName2,mode);
 		}
 
 		this.end = false;
@@ -74,31 +74,31 @@ public class Game implements Serializable {
 	 * @param PName3 the player3's name
 	 * @param PName4 the player4's name
 	 */
-	private void createPlayers(String PName1, String PName2, String PName3, String PName4, PlayerMode mode) {
+	private void createPlayers(boolean graphical, String PName1, String PName2, String PName3, String PName4, PlayerMode mode) {
 		String smode = mode.toString();
 
 		if ( smode.charAt(0) == 'H' ) {
-			players[0] = new HumanPlayer(this, PName1);
+			players[0] = new HumanPlayer(this, PName1, graphical);
 		} else {
-			players[0] = new AutoPlayer(this, PName1);
+			players[0] = new AutoPlayer(this, PName1, graphical);
 		}
 
 		if ( smode.charAt(1) == 'H' ) {
-			players[1] = new HumanPlayer(this, PName2);
+			players[1] = new HumanPlayer(this, PName2, graphical);
 		} else {
-			players[1] = new AutoPlayer(this, PName2);
+			players[1] = new AutoPlayer(this, PName2, graphical);
 		}
 
 		if ( smode.charAt(2) == 'H' ) {
-			players[2] = new HumanPlayer(this, PName3);
+			players[2] = new HumanPlayer(this, PName3, graphical);
 		} else {
-			players[2] = new AutoPlayer(this, PName3);
+			players[2] = new AutoPlayer(this, PName3, graphical);
 		}
 
 		if ( smode.charAt(3) == 'H' ) {
-			players[3] = new HumanPlayer(this, PName4);
+			players[3] = new HumanPlayer(this, PName4, graphical);
 		} else {
-			players[3] = new AutoPlayer(this, PName4);
+			players[3] = new AutoPlayer(this, PName4, graphical);
 		}
 
 	}
@@ -110,25 +110,25 @@ public class Game implements Serializable {
 	 * @param PName2 the player2's name
 	 * @param PName3 the player3's name
 	 */
-	private void createPlayers(String PName1, String PName2, String PName3, PlayerMode mode) {
+	private void createPlayers(boolean graphical, String PName1, String PName2, String PName3, PlayerMode mode) {
 		String smode = mode.toString();
 
 		if ( smode.charAt(0) == 'H' ) {
-			players[0] = new HumanPlayer(this, PName1);
+			players[0] = new HumanPlayer(this, PName1, graphical);
 		} else {
-			players[0] = new AutoPlayer(this, PName1);
+			players[0] = new AutoPlayer(this, PName1, graphical);
 		}
 
 		if ( smode.charAt(1) == 'H' ) {
-			players[1] = new HumanPlayer(this, PName2);
+			players[1] = new HumanPlayer(this, PName2, graphical);
 		} else {
-			players[1] = new AutoPlayer(this, PName2);
+			players[1] = new AutoPlayer(this, PName2, graphical);
 		}
 
 		if ( smode.charAt(2) == 'H' ) {
-			players[2] = new HumanPlayer(this, PName3);
+			players[2] = new HumanPlayer(this, PName3, graphical);
 		} else {
-			players[2] = new AutoPlayer(this, PName3);
+			players[2] = new AutoPlayer(this, PName3, graphical);
 		}
 
 	}
@@ -139,19 +139,19 @@ public class Game implements Serializable {
 	 * @param PName1 the player1's name
 	 * @param PName2 the player2's name
 	 */
-	private void createPlayers(String PName1, String PName2, PlayerMode mode) {
+	private void createPlayers(boolean graphical, String PName1, String PName2, PlayerMode mode) {
 		String smode = mode.toString();
 
 		if ( smode.charAt(0) == 'H' ) {
-			players[0] = new HumanPlayer(this, PName1);
+			players[0] = new HumanPlayer(this, PName1, graphical);
 		} else {
-			players[0] = new AutoPlayer(this, PName1);
+			players[0] = new AutoPlayer(this, PName1, graphical);
 		}
 
 		if ( smode.charAt(1) == 'H' ) {
-			players[1] = new HumanPlayer(this, PName2);
+			players[1] = new HumanPlayer(this, PName2, graphical);
 		} else {
-			players[1] = new AutoPlayer(this, PName2);
+			players[1] = new AutoPlayer(this, PName2, graphical);
 		}
 
 	}
@@ -285,11 +285,13 @@ public class Game implements Serializable {
 	/**
 	 * Allows to check if if the game is over of not.
 	 * If this is the case, changes the end attribute to true.
+	 * @return true if the game is over, else false
 	 */
-	public void isPlayerWinner(Player player) {
+	public boolean isPlayerWinner(Player player) {
 		if (player.getNbPtsVic() >= 17) {
 			end = true;
 		}
+		return end;
 	}
 
 	/**
@@ -299,12 +301,15 @@ public class Game implements Serializable {
 	public Player sendWinner() {
 		int vptemp;
 		Player winner = players[0];
-		int[][] points = {players[0].earnEndOfGame(), players[1].earnEndOfGame(),
-				players[2].earnEndOfGame(), players[3].earnEndOfGame()};
+		int[][] points = new int[players.length][4];
+
+		for ( int i = 0 ; i < points.length ; i++ ) {
+			points[i] = players[i].earnEndOfGame();
+		}
 
 		boolean tmp = true;
 		// we check if there is an equality with the final victory points
-		for ( int i = 1 ; i < 4 ; i++ ) {
+		for ( int i = 1 ; i < players.length ; i++ ) {
 			if ( points[i][0] == points[i-1][0] ) {
 				tmp = false;
 			}
@@ -312,7 +317,7 @@ public class Game implements Serializable {
 		// if there are not, we look for the winner
 		if ( tmp ) {
 			vptemp = points[0][0];
-			for ( int i = 0 ; i < 4 ; i++ ) {		// Yes a for loop is not the best here
+			for ( int i = 0 ; i < players.length ; i++ ) {		// Yes a for loop is not the best here
 				if ( vptemp < points[i][0] ) {		// but there are only 4 iterations
 					vptemp = points[i][0];			// so it doesn't change anything.
 					winner = players[i];
@@ -321,14 +326,14 @@ public class Game implements Serializable {
 		// if there is an equality, we check the victory points without the ecus
 		} else {
 			tmp = true;
-			for ( int i = 1 ; i < 4 ; i++ ) {
+			for ( int i = 1 ; i < players.length ; i++ ) {
 				if ( points[i][1] == points[i-1][1] ) {
 					tmp = false;
 				}
 			}
 			if ( tmp ) {
 				vptemp = points[0][1];
-				for ( int i = 0 ; i < 4 ; i++ ) {
+				for ( int i = 0 ; i < players.length ; i++ ) {
 					if ( vptemp < points[i][1] ) {
 						vptemp = points[i][1];
 						winner = players[i];
@@ -337,10 +342,10 @@ public class Game implements Serializable {
 			// if there is still an equality, we check the ecus of each player
 			} else {
 				vptemp = points[0][2];
-				for ( int i = 0 ; i < 4 ; i++ ) {
+				for ( int i = 0 ; i < players.length ; i++ ) {
 					if ( vptemp < points[i][2] ) {
 						vptemp = points[i][2];
-						winner = players[2];
+						winner = players[i];
 					}
 				}
 			}
@@ -377,6 +382,7 @@ public class Game implements Serializable {
 					current = players[i+1];
 				}
 			}
+			i++;
 		}
 
 	}

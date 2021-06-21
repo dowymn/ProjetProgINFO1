@@ -18,8 +18,8 @@ public class AutoPlayer extends Player {
 	 * @param game the game the player is in
 	 * @param playerName the player's name
 	 */
-	public AutoPlayer(Game game, String playerName) {
-		super(game, playerName);
+	public AutoPlayer(Game game, String playerName, boolean graphical) {
+		super(game, playerName, graphical, true);
 
 		this.random = new Random();
 	}
@@ -28,9 +28,11 @@ public class AutoPlayer extends Player {
 	 * Allows the AutoPlayer to play his turn.
 	 */
 	public void play() {
-		System.out.println("\n\n---------------------------------------------------------------------------------");
-		System.out.println(getPlayerName() + " : " + getNbPtsVic() + " pts vic, " + getNbEcus() + " ecus (autoplayer)");
-		System.out.println("---------------------------------------------------------------------------------");
+		if ( !graphical ) {
+			System.out.println("\n\n---------------------------------------------------------------------------------");
+			System.out.println(getPlayerName() + " : " + getNbPtsVic() + " pts vic, " + getNbEcus() + " ecus (autoplayer)");
+			System.out.println("---------------------------------------------------------------------------------");
+		}
 
 		boolean played = false;
 		constructionTurn.clear();
@@ -39,19 +41,25 @@ public class AutoPlayer extends Player {
 
 		while ( !played ) {
 
-			System.out.println("Actions restantes : " + getActions());
+			if ( !graphical ) {
+				System.out.println("Actions restantes : " + getActions());
+			}
 			asw = random.nextInt(5)+1;
 
 			if ( asw == 1 ) {
 				asw = random.nextInt(5)+1;
 				startBuilding(game.getAvailableBuildings().get(asw));
-				System.out.println("Ouverture d'un chantier sur le bâtiment n°" + asw + ".");
+				if ( !graphical ) {
+					System.out.println("Ouverture d'un chantier sur le bâtiment n°" + asw + ".");
+				}
 			}
 
 			else if ( asw == 2 ) {
 				asw = random.nextInt(5)+1;
 				hireWorker(game.getAvailableWorkers().get(asw));
-				System.out.println("Recrutement de l'ouvrier n°" + asw + ".");
+				if ( !graphical ) {
+					System.out.println("Recrutement de l'ouvrier n°" + asw + ".");
+				}
 			}
 
 			else if ( asw == 3 ) {
@@ -66,13 +74,17 @@ public class AutoPlayer extends Player {
 						asw = random.nextInt(getInProgressBuildings().size()) + 1;
 						BuildingCard building = getInProgressBuildings().get(asw - 1);
 						sendWorkerToWork(worker, building);
-						System.out.println("Envoi d'un " + worker.getCardName() + " travailler sur " + building.getCardName() + ".");
+						if ( !graphical ) {
+							System.out.println("Envoi d'un " + worker.getCardName() + " travailler sur " + building.getCardName() + ".");
+						}
 
 					} else if (asw == 2 && getInProgressMachines().size() > 0) {
 						asw = random.nextInt(getInProgressMachines().size()) + 1;
 						MachineCard machine = getInProgressMachines().get(asw - 1);
 						sendWorkerToWork(worker, machine);
-						System.out.println("Envoi d'un " + worker.getCardName() + " travailler sur " + machine.getCardName() + ".");
+						if ( !graphical ) {
+							System.out.println("Envoi d'un " + worker.getCardName() + " travailler sur " + machine.getCardName() + ".");
+						}
 					}
 				}
 			}
@@ -82,31 +94,42 @@ public class AutoPlayer extends Player {
 
 				if ( asw == 0 ) {
 					takeEcus(1);
-					System.out.println("Prise de 1 écus.");
+					if ( !graphical ) {
+						System.out.println("Prise de 1 écus.");
+					}
 				} else if ( asw == 1 ) {
 					takeEcus(3);
-					System.out.println("Prise de 3 écus.");
+					if ( !graphical ) {
+						System.out.println("Prise de 3 écus.");
+					}
 				} else {
 					takeEcus(6);
-					System.out.println("Prise de 6 écus.");
+					if ( !graphical ) {
+						System.out.println("Prise de 6 écus.");
+					}
 				}
 			}
 
 			else {
 				played = true;
-				System.out.println("Fin du tour.");
+				if ( !graphical ) {
+					System.out.println("Fin du tour.");
+				}
 			}
 
 			if ( getActions() == 0 && !played ) {
 				played = true;
-				System.out.println("Fin du tour.");
+				if ( !graphical ) {
+					System.out.println("Fin du tour.");
+				}
 			}
 
 		} // end of the while(!played){...}
 
-
-		this.resetActions();
-		game.isPlayerWinner(this);
+		if ( !graphical ) {
+			this.resetActions();
+			game.isPlayerWinner(this);
+		}
 	}
 
 }

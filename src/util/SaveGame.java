@@ -35,6 +35,7 @@ public class SaveGame {
 
     /**
      * Allows to load an unfinished game and start playing where it stopped.
+     * Is used in the textual version of the game.
      * @param fileName the name of the file
      */
     public static void loadGame ( String fileName ) {
@@ -52,7 +53,26 @@ public class SaveGame {
         } catch (IOException | ClassNotFoundException ex) {
             System.out.println("Error : SaveGame : saveGame() : " + ex.getMessage());
         }
+    }
 
+    /**
+     * Allows to load an unfinished game and get the instance where it has been stopped.
+     * Is used in the graphical version of the game.
+     * @param fileName the name of the file
+     */
+    public static Game getSavedGame ( String fileName ) {
+        Game game = null;
+        try {
+            ObjectInputStream in = new ObjectInputStream( new FileInputStream(PATH + fileName + EXT));
+            game = (Game) in.readObject();
+            // the file is deleted once the game is over or has been saved again
+            Utili.deleteSave(fileName);
+
+
+        } catch (IOException | ClassNotFoundException ex) {
+            System.out.println("Error : SaveGame : saveGame() : " + ex.getMessage());
+        }
+        return game;
     }
 
 }

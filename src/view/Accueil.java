@@ -25,7 +25,6 @@ public class Accueil extends Pages {
 	 */
 	public Accueil(LesBatisseurs window) {
 		super(window, "Les Bâtisseurs : Moyen-Âge");
-		this.setLayout(new GridLayout(3,1));
 		initialization();
 		addComponents();
 	}
@@ -34,6 +33,7 @@ public class Accueil extends Pages {
 	 * Initializes the components.
 	 */
 	private void initialization() {
+		this.setLayout(new GridLayout(3,1));
 
 		add(getLogo());
 

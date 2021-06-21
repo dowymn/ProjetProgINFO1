@@ -84,7 +84,7 @@ public class NouvellePartie extends Pages {
             tjr.setSelectedItem(TypeJoueur.Aucun);
             tjr.setBackground(Batview.yellowColor);
             tjr.setBorder(Batview.repPartieBorder);
-            tjr.setFont(Batview.repPartie);
+            tjr.setFont(Batview.littleFont);
             typeJrs.add(tjr);
         }
         typeJrs.get(0).setSelectedItem(TypeJoueur.Humain);
@@ -100,7 +100,7 @@ public class NouvellePartie extends Pages {
         for ( int i = 0 ; i < playerNames.length ; i++ ) {
             txf = new JTextField();
             txf.setBorder(Batview.repPartieBorder);
-            txf.setFont(Batview.repPartie);
+            txf.setFont(Batview.littleFont);
             txf.setMargin(new Insets(10,10,10,10));
             playerNames[i] = txf;
         }
@@ -221,7 +221,7 @@ public class NouvellePartie extends Pages {
      * @param p4 the 4th player's name
      */
     private void launchGame(PlayerMode mode, String p1, String p2, String p3, String p4) {
-        Game game = new Game(mode, p1, p2, p3, p4);
+        Game game = new Game(mode,true, p1, p2, p3, p4);
         resetComponents();
         getWindow().changeView("plateau", game);
     }

@@ -18,15 +18,30 @@ public class LoadGameListener implements ActionListener {
 	 * @param reprendrePartie the linked instance
 	 */
 	public LoadGameListener(ReprendrePartie reprendrePartie) {
+		if ( reprendrePartie == null ) {
+			throw new IllegalArgumentException("Error : LoadGameLisener() : reprendrePartie mustn't be null.");
+		}
+		this.reprendrePartie = reprendrePartie;
 
 	}
 
 	/**
 	 * Defines what to do then a button is clicked, according to the linked instance.
 	 * Because only the linked attribute is initialized, simply checks which one is != null and then does the job with this one.
-	 * @param actionEvent the ActionEvent
+	 * @param e the ActionEvent
 	 */
-	public void actionPerformed(ActionEvent actionEvent) {
+	public void actionPerformed(ActionEvent e) {
 
+		int i = 0;
+		boolean found = false;
+		while ( !found && i < reprendrePartie.getPartiesButtons().size() ) {
+
+			if ( e.getSource() == reprendrePartie.getPartiesButtons().get(i) ) {
+				found = true;
+				reprendrePartie.launchGame(reprendrePartie.getPartiesButtons().get(i).getText());
+			}
+
+			i++;
+		}
 	}
 }

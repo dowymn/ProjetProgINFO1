@@ -14,8 +14,8 @@ public class HumanPlayer extends Player {
 	 * @param game the game the player is in
 	 * @param playerName the player's name
 	 */
-	public HumanPlayer(Game game, String playerName) {
-		super(game, playerName);
+	public HumanPlayer(Game game, String playerName, boolean graphical) {
+		super(game, playerName, graphical, false);
 	}
 
 	/**

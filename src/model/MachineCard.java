@@ -124,6 +124,7 @@ public class MachineCard extends Card {
 		if ( !worker.getIsWorking() ) {
 			worker.changeWork(true);
 			workers.add(worker);
+			done = true;
 		}
 		return done;
 	}

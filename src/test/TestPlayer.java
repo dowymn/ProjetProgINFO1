@@ -15,9 +15,9 @@ public class TestPlayer {
     @Test()
     public void testAutoPlayer() {
 
-        Game game = new Game(PlayerMode.HA, "jr1","jr2","","");
+        Game game = new Game(PlayerMode.HA,false,"jr1","jr2","","");
 
-        Player p1 = new AutoPlayer(game, "jr1");
+        Player p1 = new AutoPlayer(game,"jr1",false);
         assertEquals("jr1",p1.getPlayerName());
 
     }
@@ -25,9 +25,9 @@ public class TestPlayer {
     @Test()
     public void testHumanPlayer() {
 
-        Game game = new Game(PlayerMode.HA, "jr1","jr2","",null);
+        Game game = new Game(PlayerMode.HA,false,"jr1","jr2","",null);
 
-        Player p1 = new HumanPlayer(game, "jr1");
+        Player p1 = new HumanPlayer(game,"jr1",false);
         assertEquals("jr1",p1.getPlayerName());
 
     }

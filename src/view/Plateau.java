@@ -7,6 +7,10 @@ import util.Batview;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.TimerTask;
+import java.util.Timer;
 
 /**
  * [ M2107 - Projet de programmation ] Les Bâtisseurs : Moyen-Âge
@@ -17,8 +21,11 @@ public class Plateau extends Pages {
 
 	private ButtonListener listener;
 	private BoardListener boardListener;
+	private CardListener cardListener;
 
 	private final Game game;
+	private int nbTour;
+	private boolean gameOver;
 
 	// PANELS
 	private JPanel plateauPanel;
@@ -62,7 +69,7 @@ public class Plateau extends Pages {
 	 * Calls the initialization() method.
 	 * @param window the window instance
 	 */
-	public Plateau(LesBatisseurs window, Game game) {
+	public Plateau(LesBatisseurs window, Game game, boolean[] tutos, int nbTour, boolean end) {
 		super(window, "Plateau");
 
 		if ( game == null ) {
@@ -70,21 +77,36 @@ public class Plateau extends Pages {
 		}
 		this.game = game;
 
-		initialization();
+		if ( nbTour < 1 ) {
+			throw new IllegalArgumentException("Error : Plateau() : nbTour mustn't be < 1.");
+		}
+		this.nbTour = nbTour;
+
+		this.gameOver = end;
+
+		initialization(tutos);
 		addComponents();
+
+		if ( game.getCurrent().getIsBot() ) {
+			game.getCurrent().play();
+			JOptionPane.showMessageDialog(null,"Le joueur automatique vient de jouer son tour." +
+					"\nObserve ce qu'il a fait puis finis son tour.");
+			disableButtons(actionButtons[7]);
+		}
 
 	}
 
 	/**
 	 * Initializes the components.
 	 */
-	private void initialization() {
+	private void initialization(boolean[] tutos) {
 		setLayout(new BorderLayout());
 		this.setBackground(Batview.transpBlackColor);
 
 		// LISTENERS
 		this.listener = new ButtonListener(this);
-		this.boardListener = new BoardListener(this);
+		this.cardListener = new CardListener(this);
+		this.boardListener = new BoardListener(this, cardListener, tutos);
 
 		// PLATEAU
 		this.plateauPanel = new JPanel(new GridLayout(1,2));
@@ -113,11 +135,11 @@ public class Plateau extends Pages {
 		pioche.setBorder(new EmptyBorder(new Insets(0,15,0,15)));
 		// Pioche ouvriers
 		this.piocheOuvriers = new JPanel(new GridLayout(1,5));
-		piocheOuvriers.setBackground(Batview.transpWhiteColor);
+		piocheOuvriers.setBackground(Batview.transpaColor);
 		piocheOuvriers.setBorder(Batview.piocheBorder);
 		// Pioche batiments
 		this.piocheBatiments = new JPanel(new GridLayout(1,5));
-		piocheBatiments.setBackground(Batview.transpWhiteColor);
+		piocheBatiments.setBackground(Batview.transpaColor);
 		piocheBatiments.setBorder(Batview.piocheBorder);
 
 		// RIGHT SIDE PANELS
@@ -129,15 +151,15 @@ public class Plateau extends Pages {
 		joueurCards.setBorder(new EmptyBorder(new Insets(0,15,18,15)));
 		// Ouvriers jr
 		ouvriersJr = new JPanel(new GridLayout(1,5));
-		ouvriersJr.setBackground(Batview.transpWhiteColor);
+		ouvriersJr.setBackground(Batview.transpaColor);
 		ouvriersJr.setBorder(Batview.piocheBorder);
 		// Chantiers jr
 		chantiersJr = new JPanel(new GridLayout(1,5));
-		chantiersJr.setBackground(Batview.transpWhiteColor);
+		chantiersJr.setBackground(Batview.transpaColor);
 		chantiersJr.setBorder(Batview.piocheBorder);
 		// Batiments finis jr
 		batsFinisJr = new JPanel(new GridLayout(1,5));
-		batsFinisJr.setBackground(Batview.transpWhiteColor);
+		batsFinisJr.setBackground(Batview.transpaColor);
 		batsFinisJr.setBorder(Batview.piocheBorder);
 
 
@@ -165,7 +187,7 @@ public class Plateau extends Pages {
 		actionsRestantes.setForeground(Color.WHITE);
 
 		// Tour
-		this.noTour = new JLabel("Tour n°1");
+		this.noTour = new JLabel("Tour n°" + nbTour);
 		noTour.setHorizontalAlignment(JLabel.CENTER);
 		noTour.setVerticalAlignment(JLabel.BOTTOM);
 		noTour.setFont(Batview.hdrNvlPartie);
@@ -287,10 +309,6 @@ public class Plateau extends Pages {
 		int width = (int) (height/ratio);
 
 
-		System.out.println("Before:");
-		System.out.println("height = " + piocheOuvriers.getMaximumSize());
-		System.out.println("width = " + piocheOuvriers.getWidth());
-
 		// Workers
 		int max = 5;
 		if ( game.getAvailableWorkers().size() < 5 ) {
@@ -299,8 +317,11 @@ public class Plateau extends Pages {
 		WorkerCard worker;
 		for ( int i = 0 ; i < max ; i++ ) {
 			worker = game.getAvailableWorkers().get(i);
-			ImageIcon img = Batview.sizedCard(worker.getCardImage(),width,height);
-			piocheOuvriers.add(new JLabel(img));
+			JButton lab = new JButton();
+			setCardBouton(lab, Batview.sizedCard(worker.getCardImage(),width,height));
+			lab.addActionListener(cardListener);
+
+			piocheOuvriers.add(lab);
 		}
 
 
@@ -317,18 +338,18 @@ public class Plateau extends Pages {
 			card = game.getAvailableBuildings().get(i);
 			if ( card.getType() == TypeCard.Building ) {
 				BuildingCard building = (BuildingCard) card;
-				ImageIcon img = Batview.sizedCard(building.getCardImage(),width,height);
-				piocheBatiments.add(new JLabel(img));
+				JButton lab = new JButton();
+				setCardBouton(lab, Batview.sizedCard(building.getCardImage(),width,height));
+				lab.addActionListener(cardListener);
+				piocheBatiments.add(lab);
 			} else if ( card.getType() == TypeCard.Machine ) {
 				MachineCard building = (MachineCard) card;
-				ImageIcon img = Batview.sizedCard(building.getCardImageR(),width,height);
-				piocheBatiments.add(new JLabel(img));
+				JButton lab = new JButton();
+				setCardBouton(lab, Batview.sizedCard(building.getCardImageR(),width,height));
+				lab.addActionListener(cardListener);
+				piocheBatiments.add(lab);
 			}
 		}
-
-		System.out.println("After:");
-		System.out.println("height = " + piocheOuvriers.getHeight());
-		System.out.println("width = " + piocheOuvriers.getWidth());
 
 	}
 
@@ -338,47 +359,203 @@ public class Plateau extends Pages {
 	public void displayJrCards() {
 
 		double ratio = (double) 140/100;
-		//int height = piocheOuvriers.getHeight()-10;
-		//int width = (int) (height/ratio);
-		int height = 140;
+		int height = 160;
 		if ( getWindow().getHeight() > 900 && getWindow().getHeight() < 1000 ) {
-			height = 170;
+			height = 180;
 		} else if ( getWindow().getHeight() > 1000 ) {
 			height = 200;
 		}
 		int width = (int) (height/ratio);
 
 		Player player = game.getCurrent();
+		Card card;
 
 		// Workers
-		WorkerCard worker;
-		for ( int i = 0 ; i < player.getPlayerWorkers().size() ; i++ ) {
-			worker = player.getPlayerWorkers().get(i);
-			ImageIcon img = Batview.sizedCard(worker.getCardImage(),width,height);
-			piocheOuvriers.add(new JLabel(img));
+		for ( int i = 0 ; i < player.getFreeWM().size() ; i++ ) {
+			card = player.getFreeWM().get(i);
+			if ( card.getType() == TypeCard.Worker ) {
+				WorkerCard worker = (WorkerCard) card;
+				JButton lab = new JButton();
+				setCardBouton(lab, Batview.sizedCard(worker.getCardImage(), width, height));
+				lab.addActionListener(cardListener);
+				lab.setVerticalAlignment(JButton.CENTER);
+				ouvriersJr.add(lab);
+			} else if ( card.getType() == TypeCard.Machine ) {
+				MachineCard worker = (MachineCard) card;
+				JButton lab = new JButton();
+				setCardBouton(lab, Batview.sizedCard(worker.getCardImageV(), width, height));
+				lab.addActionListener(cardListener);
+				lab.setVerticalAlignment(JButton.CENTER);
+				ouvriersJr.add(lab);
+			}
 		}
 
 
 		ratio = (double) 140/120;
 		width = (int) (height/ratio);
 
-		// Machines
-		MachineCard machine;
-		for ( int i = 0 ; i < player.getInProgressMachines().size() ; i++ ) {
-			machine = player.getPlayerMachines().get(i);
-			ImageIcon img = Batview.sizedCard(machine.getCardImageR(),width,height);
-			ouvriersJr.add(new JLabel(img));
+		// Buidlings
+		for ( int i = 0 ; i < player.getChantiers().size() ; i++ ) {
+			card = player.getChantiers().get(i);
+			if ( card.getType() == TypeCard.Building ) {
+				BuildingCard building = (BuildingCard) card;
+				JButton lab = new JButton();
+				setCardBouton(lab, Batview.sizedCard(building.getCardImage(),width,height));
+				lab.setVerticalAlignment(JButton.CENTER);
+				lab.addActionListener(cardListener);
+				// the hover stats system that allows to show the card's stats
+				lab.addMouseListener(new MouseAdapter() {
+					public Timer timer;
+					@Override
+					public void mouseEntered(MouseEvent e) {
+						if ( e.getSource() == lab ) {
+							timer = startTimer(lab,getStatsChantier(building));
+						}
+					}
+					@Override
+					public void mouseExited(MouseEvent e) {
+						timer.cancel();
+					}
+					@Override
+					public void mouseClicked(MouseEvent e) {
+						timer.cancel();
+					}
+				});
+
+				chantiersJr.add(lab);
+			} else if ( card.getType() == TypeCard.Machine ) {
+				MachineCard building = (MachineCard) card;
+				JButton lab = new JButton();
+				setCardBouton(lab, Batview.sizedCard(building.getCardImageR(),width,height));
+				lab.setVerticalAlignment(JButton.CENTER);
+				lab.addActionListener(cardListener);
+				// the hover stats system that allows to show the card's stats
+				lab.addMouseListener(new MouseAdapter() {
+					public Timer timer;
+					@Override
+					public void mouseEntered(MouseEvent e) {
+						if ( e.getSource() == lab ) {
+							timer = startTimer(lab,getStatsChantier(building));
+						}
+					}
+					@Override
+					public void mouseExited(MouseEvent e) {
+						timer.cancel();
+					}
+					@Override
+					public void mouseClicked(MouseEvent e) {
+						timer.cancel();
+					}
+				});
+				chantiersJr.add(lab);
+			}
+
 		}
 
-		// Buildings
-		BuildingCard building;
-		for ( int i = 0 ; i < player.getInProgressMachines().size() ; i++ ) {
-			building = player.getPlayerBuildings().get(i);
-			ImageIcon img = Batview.sizedCard(building.getCardImage(),width,height);
-			ouvriersJr.add(new JLabel(img));
+		// Finished buildings
+		for ( int i = 0 ; i < player.getFinishedBuildings().size() ; i++ ) {
+			BuildingCard building = player.getFinishedBuildings().get(i);
+			JButton lab = new JButton();
+			setCardBouton(lab, Batview.sizedCard(building.getCardImage(), width, height));
+			lab.addActionListener(cardListener);
+			lab.setVerticalAlignment(JButton.CENTER);
+			batsFinisJr.add(lab);
 		}
 
 	}
+
+	/**
+	 * Allows to get the actual stats of a card.
+	 * @param card the card - building or machine
+	 * @return a String chain that contains the card's stats
+	 */
+	private String getStatsChantier(Card card) {
+		StringBuilder stats = new StringBuilder();
+
+		if ( card.getType() == TypeCard.Building ) {
+			BuildingCard building = (BuildingCard) card;
+			int surPierre = building.getPierreNec();
+			int surBois = building.getBoisNec();
+			int surSavoir = building.getSavoirNec();
+			int surTuile = building.getTuileNec();
+
+			int pierre = 0;
+			int bois = 0;
+			int savoir = 0;
+			int tuile = 0;
+			for ( WorkerCard worker : building.getWorkers() ) {
+				pierre += worker.getPierreProd();
+				bois += worker.getBoisProd();
+				savoir += worker.getSavoirProd();
+				tuile += worker.getTuileProd();
+			}
+			for ( MachineCard worker : building.getMachines() ) {
+				pierre += worker.getPierreProd();
+				bois += worker.getBoisProd();
+				savoir += worker.getSavoirProd();
+				tuile += worker.getTuileProd();
+			}
+			stats.append("Pierre : ").append(pierre).append("/").append(surPierre);
+			stats.append("\nBois   : ").append(bois).append("/").append(surBois);
+			stats.append("\nSavoir : ").append(savoir).append("/").append(surSavoir);
+			stats.append("\nTuile  : ").append(tuile).append("/").append(surTuile);
+		}
+
+		else if ( card.getType() == TypeCard.Machine ) {
+			MachineCard building = (MachineCard) card;
+			int surPierre = building.getPierreNec();
+			int surBois = building.getBoisNec();
+			int surSavoir = building.getSavoirNec();
+			int surTuile = building.getTuileNec();
+
+			int pierre = 0;
+			int bois = 0;
+			int savoir = 0;
+			int tuile = 0;
+			for ( WorkerCard worker : building.getWorkers() ) {
+				pierre += worker.getPierreProd();
+				bois += worker.getBoisProd();
+				savoir += worker.getSavoirProd();
+				tuile += worker.getTuileProd();
+			}
+			stats.append("Pierre : ").append(pierre).append("/").append(surPierre);
+			stats.append("\nBois   : ").append(bois).append("/").append(surBois);
+			stats.append("\nSavoir : ").append(savoir).append("/").append(surSavoir);
+			stats.append("\nTuile  : ").append(tuile).append("/").append(surTuile);
+		}
+
+		return stats.toString();
+	}
+
+	/**
+	 * Allows to display a message when the button is hovered for 3 seconds.
+	 * @param lab the button
+	 * @param text the text to show
+	 * @return the created timer
+	 */
+	private Timer startTimer(JButton lab, String text) {
+		TimerTask task = new TimerTask() {
+			@Override
+			public void run() {
+				JOptionPane.showMessageDialog(lab, text);
+			}
+		};
+
+		Timer timer = new Timer(true);
+		timer.schedule(task, 3000);
+		return timer;
+	}
+
+	/**
+	 * Allows to refresh the game board by calling the needed method from the LesBatisseurs class.
+	 */
+	public void refreshPlateau() {
+		getWindow().newPlateauInstance(game, nbTour, this.gameOver);
+	}
+
+
+
+	//-----[ BUTTONS ACTIONS
 
 	/**
 	 * Defines what to do when the "Sauvegarder et quitter" button is clicked.
@@ -396,8 +573,161 @@ public class Plateau extends Pages {
 
 	}
 
+	/**
+	 * Allows to enable the action buttons.
+	 */
+	public void enableButtons() {
+		for ( JButton button : actionButtons ) {
+			button.setEnabled(true);
+		}
+	}
+
+	/**
+	 * Allows to disable the action buttons.
+	 */
+	public void disableButtons(JButton butbutton) {
+		for ( JButton button : actionButtons ) {
+			if ( button != butbutton ) {
+				button.setEnabled(false);
+			}
+		}
+	}
+
+	/**
+	 * Defines what happens when the "Ouvrir un chantier" button is clicked.
+	 */
+	public void ouvrirChantierButton(Card card) {
+		game.getCurrent().startBuilding(card);
+		refreshPlateau();
+	}
+
+	/**
+	 * Defines what happens when the "Recruter un ouvrier" button is clicked.
+	 * @param worker the selected worker
+	 */
+	public void recruterOuvrierButton(WorkerCard worker) {
+		game.getCurrent().hireWorker(worker);
+		refreshPlateau();
+	}
+
+	/**
+	 * Defines what happens when the "Prendre 1 écu" button is clicked.
+	 */
+	public void prendre1EcuButton() {
+		game.getCurrent().takeEcus(1);
+		refreshPlateau();
+	}
+
+	/**
+	 * Defines what happens when the "Prendre 3 écus" button is clicked.
+	 */
+	public void prendre3EcusButton() {
+		game.getCurrent().takeEcus(3);
+		refreshPlateau();
+	}
+
+	/**
+	 * Defines what happens when the "Prendre 6 écus" button is clicked.
+	 */
+	public void prendre6EcusButton() {
+		game.getCurrent().takeEcus(6);
+		refreshPlateau();
+	}
+
+	/**
+	 * Defines what happens when the "Envoyer travailler un ouvrier" button is clicked.
+	 */
+	public void envoiOuvrierButton(Card worker, Card building) {
+		game.getCurrent().sendWorkerToWork(worker, building);
+		refreshPlateau();
+	}
+
+	/**
+	 * Defines what happens when the "Acheter une action" button is clicked.
+	 */
+	public void acheterActionButton( int nb ) {
+		game.getCurrent().buyAction(nb);
+		refreshPlateau();
+	}
+
+	/**
+	 * Defines what happens when the "Finir mon tour" button is clicked.
+	 */
+	public void finirTourButton() {
+		if ( getGame().isPlayerWinner(getGame().getCurrent()) ) {
+			setGameOver(true);
+		}
+		if ( this.gameOver && game.getCurrent() == game.getPlayers()[game.getPlayers().length-1] ) {
+			endOfGame();
+		} else {
+			if (game.getCurrent() == game.getPlayers()[0]) {
+				nbTour++;
+			}
+			game.getCurrent().resetActions();
+			game.getCurrent().resetConstructionTurn();
+			game.changeCurrent();
+
+			refreshPlateau();
+		}
+	}
+
+
+
+	//-----[ END OF THE GAME
+
+	/**
+	 * Changes the state of the end attribute.
+	 * @param end the attribute's state
+	 */
+	public void setGameOver(boolean end) {
+		this.gameOver = end;
+	}
+
+	/**
+	 * Defines what happens when this is the end of the game
+	 */
+	public void endOfGame() {
+		Player winner = game.sendWinner();
+		getWindow().changeView("finDuJeu",winner);
+	}
+
 
 	//-----[ GETTERS
+
+	/**
+	 * @return the game instance
+	 */
+	public Game getGame() {
+		return game;
+	}
+
+	/**
+	 * @return the piocheOuvriers panel
+	 */
+	public JPanel getPiocheOuvriers() {
+		return piocheOuvriers;
+	}
+
+	/**
+	 * @return the piocheBatiments panel
+	 */
+	public JPanel getPiocheBatiments() {
+		return piocheBatiments;
+	}
+
+	/**
+	 * @return the ouvriersJr panel
+	 */
+	public JPanel getOuvriersJr() {
+		return ouvriersJr;
+	}
+
+	/**
+	 * @return the chantiersJr panel
+	 */
+	public JPanel getChantiersJr() {
+		return chantiersJr;
+	}
 
 	/**
 	 * @return the "Sauvegarder et quitter" button

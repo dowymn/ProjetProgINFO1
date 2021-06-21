@@ -17,7 +17,7 @@ public class TestGame {
     public void testTheBuildersGame() {
 
         // Game with 2 players
-        Game game1 = new Game(PlayerMode.HA, "jr1", "jr2", "", "");
+        Game game1 = new Game(PlayerMode.HA,false, "jr1", "jr2", "", "");
 
         // Constructor and createPlayers() method
         assertNotNull(game1.getPlayers()[0]);
@@ -38,7 +38,7 @@ public class TestGame {
 
 
         // Game with 3 players
-        Game game2 = new Game(PlayerMode.HAA, "jr1", "jr2", "jr3", "");
+        Game game2 = new Game(PlayerMode.HAA,false, "jr1", "jr2", "jr3", "");
 
         // Constructor and createPlayers() method
         assertNotNull(game2.getPlayers()[0]);
@@ -53,7 +53,7 @@ public class TestGame {
 
 
         // Game with 4 players
-        Game game3 = new Game(PlayerMode.HHHA, "jr1", "jr2", "jr3", "jr4");
+        Game game3 = new Game(PlayerMode.HHHA,false, "jr1", "jr2", "jr3", "jr4");
 
         // Constructor and createPlayers() method
         assertNotNull(game3.getPlayers()[0]);

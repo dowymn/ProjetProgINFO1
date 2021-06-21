@@ -159,20 +159,20 @@ public class TheBuildersGame {
 		System.out.print("Nom du joueur 2 : ");
 		String p2 = scan.nextLine();
 		if ( mode.toString().length() == 2 ) {
-			gamePlay = new Game(mode, p1, p2, null, null);
+			gamePlay = new Game(mode,false, p1, p2, null, null);
 		}
 
 		if ( mode.toString().length() == 3 ) {
 			System.out.print("Nom du joueur 3 : ");
 			String p3 = scan.nextLine();
-			gamePlay = new Game(mode,p1,p2,p3,null);
+			gamePlay = new Game(mode,false,p1,p2,p3,null);
 
 		} else if ( mode.toString().length() == 4 ) {
 			System.out.print("Nom du joueur 3 : ");
 			String p3 = scan.nextLine();
 			System.out.print("Nom du joueur 4 : ");
 			String p4 = scan.nextLine();
-			gamePlay = new Game(mode,p1,p2,p3,p4);
+			gamePlay = new Game(mode,false,p1,p2,p3,p4);
 		}
 
 		System.out.println("\n\n\n");

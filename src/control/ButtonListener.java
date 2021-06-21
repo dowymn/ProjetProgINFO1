@@ -18,6 +18,7 @@ public class ButtonListener implements ActionListener {
 	private NouvellePartie nouvellePartie;
 	private ReprendrePartie reprendrePartie;
 	private Plateau plateau;
+	private FinDuJeu finDuJeu;
 
 	/**
 	 * Initializes the accueil field.
@@ -86,6 +87,17 @@ public class ButtonListener implements ActionListener {
 	}
 
 	/**
+	 * Initializes the finDuJeu field.
+	 * @param finDuJeu the linked instance
+	 */
+	public ButtonListener(FinDuJeu finDuJeu) {
+		if ( finDuJeu == null ) {
+			throw new IllegalArgumentException("Error : ButtonListener() : plateau mustn't be null.");
+		}
+		this.finDuJeu = finDuJeu;
+	}
+
+	/**
 	 * Defines what to do then a button is clicked, according to the linked instance.
 	 * Because only the linked attribute is initialized, simply checks which one is != null and then does the job with this one.
 	 * @param e the ActionEvent
@@ -135,6 +147,12 @@ public class ButtonListener implements ActionListener {
 		else if ( plateau != null ) {
 			if ( e.getSource() == plateau.getSaveButton() ) {
 				plateau.returnButtonAction();
+			}
+		}
+
+		else if ( finDuJeu != null ) {
+			if ( e.getSource() == finDuJeu.getQuitterBouton() ) {
+				finDuJeu.returnButtonAction();
 			}
 		}
 
