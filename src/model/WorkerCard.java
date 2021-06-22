@@ -2,9 +2,6 @@ package model;
 
 import util.Batview;
 
-import javax.swing.*;
-import java.util.Locale;
-
 /**
  * [ M2107 - Projet de programmation ] Les Bâtisseurs : Moyen-Âge
  * Defines the Worker's cards.

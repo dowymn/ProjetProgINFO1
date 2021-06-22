@@ -1,4 +1,5 @@
 import model.*;
+import util.Batview;
 
 /**
  * [ M2107 - Projet de programmation ] Les Bâtisseurs : Moyen-Âge
@@ -9,7 +10,7 @@ public class Launcher {
 
     public static void main(String[] args) {
 
-        TheBuildersGame game = new TheBuildersGame();
+        new TheBuildersGame();
 
     }
 

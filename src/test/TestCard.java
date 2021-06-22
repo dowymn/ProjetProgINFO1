@@ -76,10 +76,6 @@ public class TestCard {
         assertEquals(0,card.getSavoirNec());
         assertEquals(0,card.getTuileNec());
         assertTrue(card.isAvailable());
-
-        card.changeUse(true);
-        assertTrue(card.getIsUsed());
-        card.changeUse(false);
         assertFalse(card.getIsUsed());
 
     }

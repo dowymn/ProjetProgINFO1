@@ -1,6 +1,7 @@
 package test;
 
 import model.*;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -12,23 +13,37 @@ import static org.junit.Assert.*;
  */
 public class TestPlayer {
 
+    private Game game;
+
+    private WorkerCard worker;
+    private BuildingCard building;
+
+    private AutoPlayer auto;
+    private HumanPlayer human;
+
+    @Before
+    public void setUp() {
+        game = new Game(PlayerMode.HA,false,"jr1","jr2",null,null);
+
+        worker = new WorkerCard("Master", "Maitre1.png",5,3,2,3,0);
+        building = new BuildingCard("Tower","Batiment1.png",3,2,6,4,2,1);
+
+        auto = new AutoPlayer(game,"jr1",false);
+        human = new HumanPlayer(game,"jr1",false);
+
+    }
+
     @Test()
     public void testAutoPlayer() {
-
-        Game game = new Game(PlayerMode.HA,false,"jr1","jr2","","");
-
-        Player p1 = new AutoPlayer(game,"jr1",false);
-        assertEquals("jr1",p1.getPlayerName());
+        assertEquals("jr1",auto.getPlayerName());
+        assertEquals(1,human.getFreeWM().size());
 
     }
 
     @Test()
     public void testHumanPlayer() {
-
-        Game game = new Game(PlayerMode.HA,false,"jr1","jr2","",null);
-
-        Player p1 = new HumanPlayer(game,"jr1",false);
-        assertEquals("jr1",p1.getPlayerName());
+        assertEquals("jr1",human.getPlayerName());
+        assertEquals(1,human.getFreeWM().size());
 
     }
 

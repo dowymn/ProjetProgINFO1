@@ -14,7 +14,6 @@ public class ButtonListener implements ActionListener {
 
 	private Accueil accueil;
 	private MenuJouer menuJouer;
-	private Regles regles;
 	private NouvellePartie nouvellePartie;
 	private ReprendrePartie reprendrePartie;
 	private Plateau plateau;
@@ -29,17 +28,6 @@ public class ButtonListener implements ActionListener {
 			throw new IllegalArgumentException("Error : ButtonListener() : accueil mustn't be null.");
 		}
 		this.accueil = accueil;
-	}
-
-	/**
-	 * Initializes the regles field.
-	 * @param regles the linked instance
-	 */
-	public ButtonListener(Regles regles) {
-		if ( regles == null ) {
-			throw new IllegalArgumentException("Error : ButtonListener() : regles mustn't be null.");
-		}
-		this.regles = regles;
 	}
 
 	/**
@@ -111,12 +99,6 @@ public class ButtonListener implements ActionListener {
 				accueil.getWindow().changeView("regles");
 			} else if ( e.getSource() == accueil.getQuitterBouton() ) {
 				System.exit(0);
-			}
-		}
-
-		else if ( regles != null ) {
-			if ( e.getSource() == regles.getRetourBouton() ) {
-				regles.returnButtonAction();
 			}
 		}
 

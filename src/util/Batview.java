@@ -49,19 +49,6 @@ public class Batview {
     public final static EmptyBorder piocheBorderE = new EmptyBorder(new Insets(5,5,5,5));
     public final static EmptyBorder emptyBorder = new EmptyBorder(new Insets(0,0,0,0));
 
-    public Batview() {
-        try {
-            BufferedImage img = ImageIO.read(new File((PATHIMAGE+"logo.png")));
-        } catch (IOException e) {
-            MAIN = "../data/";
-            try {
-                BufferedImage img = ImageIO.read(new File((PATHIMAGE+"logo.png")));
-            } catch (IOException f) {
-                System.out.println("Merci de lancer le jeu depuis l'endroit où est située l'archive JAR.");
-            }
-        }
-    }
-
     // IMAGES
     /**
      * Allows to get an image in the good size.
