@@ -24,7 +24,6 @@ public class SaveGame {
 
         try {
             ObjectOutputStream out = new ObjectOutputStream( new FileOutputStream(PATH + gameName + EXT));
-
             out.writeObject(game);
 
             out.close();

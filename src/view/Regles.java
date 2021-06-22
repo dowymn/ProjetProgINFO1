@@ -3,9 +3,12 @@ package view;
 import control.*;
 import util.Batview;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * [ M2107 - Projet de programmation ] Les Bâtisseurs : Moyen-Âge
@@ -51,12 +54,38 @@ public class Regles extends Pages {
 	 */
 	private void addComponents() {
 		add(getPetitLogo(), BorderLayout.NORTH);
-		add(reglesPanel, BorderLayout.CENTER);
+		showRules();
 		add(getRetourBouton(), BorderLayout.SOUTH);
 	}
 
-	private void showPDF() {
+	/**
+	 * Allows to add the rules to the main panel.
+	 */
+	private void showRules() {
 
+
+
+	}
+
+	/**
+	 * Allows to get an image in the good size.
+	 * @param image the image name
+	 * @param width the wanted width
+	 * @param height the wanted height
+	 * @return an ImageIcon that contains the resized image
+	 */
+	private ImageIcon sizedImage(String image, int width, int height) {
+		ImageIcon icon = null;
+		try {
+			BufferedImage logo = ImageIO.read(new File(image));
+			Image limg = logo.getScaledInstance(width,height,Image.SCALE_SMOOTH);
+			icon = new ImageIcon(limg);
+
+		} catch (IOException e) {
+			System.out.println("Error : Batview : sizedImage() : " + e.getMessage());
+			icon = new ImageIcon(image);
+		}
+		return icon;
 	}
 
 	/**

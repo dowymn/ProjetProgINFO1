@@ -88,10 +88,7 @@ public class Plateau extends Pages {
 		addComponents();
 
 		if ( game.getCurrent().getIsBot() ) {
-			game.getCurrent().play();
-			JOptionPane.showMessageDialog(null,"Le joueur automatique vient de jouer son tour." +
-					"\nObserve ce qu'il a fait puis finis son tour.");
-			disableButtons(actionButtons[7]);
+			playBot();
 		}
 
 	}
@@ -291,6 +288,16 @@ public class Plateau extends Pages {
 
 
 	//-----[ METHODS
+
+	/**
+	 * Allows the auto player to play its turn.
+	 */
+	public void playBot() {
+		game.getCurrent().play();
+		JOptionPane.showMessageDialog(null,"Le joueur automatique vient de jouer." +
+				"\nObserve ce qu'il a fait puis finis son tour.");
+		disableButtons(actionButtons[7]);
+	}
 
 	/**
 	 * Allows to display the Worker and Building cards of the deck.

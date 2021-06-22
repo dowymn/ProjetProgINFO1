@@ -63,27 +63,18 @@ public class AutoPlayer extends Player {
 			}
 
 			else if ( asw == 3 ) {
-				if ( getFreeWorkers().size()>0 && (getInProgressBuildings().size() > 0 || getInProgressMachines().size() > 0) ) {
+				if ( getFreeWM().size()>0 && getChantiers().size() > 0 ) {
 					// choix de l'ouvrier
-					asw = random.nextInt(getFreeWorkers().size()) + 1;
-					WorkerCard worker = getFreeWorkers().get(asw-1);
+					asw = random.nextInt(getFreeWM().size()) + 1;
+					Card worker = getFreeWM().get(asw-1);
 
-					// choix entre bâtiement et machine
-					asw = random.nextInt(2) + 1;
-					if (asw == 1 && getInProgressBuildings().size() > 0) {
-						asw = random.nextInt(getInProgressBuildings().size()) + 1;
-						BuildingCard building = getInProgressBuildings().get(asw - 1);
+					// choix du chantier
+					if (getChantiers().size() > 0) {
+						asw = random.nextInt(getChantiers().size()) + 1;
+						Card building = getChantiers().get(asw - 1);
 						sendWorkerToWork(worker, building);
 						if ( !graphical ) {
 							System.out.println("Envoi d'un " + worker.getCardName() + " travailler sur " + building.getCardName() + ".");
-						}
-
-					} else if (asw == 2 && getInProgressMachines().size() > 0) {
-						asw = random.nextInt(getInProgressMachines().size()) + 1;
-						MachineCard machine = getInProgressMachines().get(asw - 1);
-						sendWorkerToWork(worker, machine);
-						if ( !graphical ) {
-							System.out.println("Envoi d'un " + worker.getCardName() + " travailler sur " + machine.getCardName() + ".");
 						}
 					}
 				}

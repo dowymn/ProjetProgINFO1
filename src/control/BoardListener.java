@@ -80,7 +80,7 @@ public class BoardListener implements ActionListener {
 
             // Envoyer travailler un ouvrier
             else if ( e.getSource() == buttons[4] ) {
-                if ( plateau.getGame().getCurrent().getFreeWorkers().size() > 0 || plateau.getGame().getCurrent().getFreeMachines().size() > 0 ) {
+                if ( plateau.getGame().getCurrent().getFreeWM().size() > 0 ) {
                     if ( plateau.getGame().getCurrent().getChantiers().size() > 0 ) {
                         plateau.setImageGameBouton(plateau.getActionButtons()[4],"bouton_envoi_ouvrier_c.png");
                         if ( tutos[4] ) {

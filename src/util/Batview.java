@@ -6,8 +6,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * [ M2107 - Projet de programmation ] Les Bâtisseurs : Moyen-Âge
@@ -17,11 +16,13 @@ import java.io.IOException;
 public class Batview {
 
     // PATHS
-    public static final String PATHINFOS = "./data/infos/";
-    public static final String PATHIMAGE = "./data/images/";
-    public static final String PATHCARDS = "./data/cards/";
-    public static final String PATHGAMEBUTTONS = "./data/images/ingame/";
-    public static final String PATHSAVES = "./data/saves/";
+    private static String MAIN = "./data/";
+    public static final String PATHINFOS = MAIN + "infos/";
+    public static final String PATHFONTS = MAIN + "fonts/";
+    public static final String PATHIMAGE = MAIN + "images/";
+    public static final String PATHCARDS = MAIN + "cards/";
+    public static final String PATHGAMEBUTTONS = MAIN + "images/ingame/";
+    public static final String PATHSAVES = MAIN + "saves/";
     public static final String EXT = ".bati";
 
     // COLORS
@@ -34,12 +35,12 @@ public class Batview {
     public static final Color transpBlackColor = new Color(0, 0, 0, 55);
 
     // FONTS
-    public final static Font littleFont = new Font("Laksaman", Font.PLAIN, 20);
-    public final static Font repPartie = new Font("Laksaman", Font.PLAIN, 26);
-    public final static Font jrNvlPartie = new Font("Laksaman", Font.BOLD, 24);
-    public final static Font hdrNvlPartie = new Font("Z003-MediumItalic", Font.PLAIN, 45);
-    public final static Font gameTitle = new Font("Z003-MediumItalic", Font.PLAIN, 70);
-    public final static Font gameSubtitle = new Font("Laksaman", Font.PLAIN, 24);
+    public final static Font littleFont = getFont("Laksaman.ttf",20);
+    public final static Font repPartie = getFont("Laksaman.ttf",26);
+    public final static Font jrNvlPartie = getFont("Laksaman-Bold.ttf",24);
+    public final static Font hdrNvlPartie = getFont("Z003-MediumItalic.otf",45);
+    public final static Font gameTitle = getFont("Z003-MediumItalic.otf",70);
+    public final static Font gameSubtitle = getFont("Laksaman.ttf",24);
 
     // BORDERS
     public final static LineBorder repPartieBorder = new LineBorder(redColor,2);
@@ -47,6 +48,19 @@ public class Batview {
     public final static LineBorder piocheBorder = new LineBorder(Color.WHITE,2);
     public final static EmptyBorder piocheBorderE = new EmptyBorder(new Insets(5,5,5,5));
     public final static EmptyBorder emptyBorder = new EmptyBorder(new Insets(0,0,0,0));
+
+    public Batview() {
+        try {
+            BufferedImage img = ImageIO.read(new File((PATHIMAGE+"logo.png")));
+        } catch (IOException e) {
+            MAIN = "../data/";
+            try {
+                BufferedImage img = ImageIO.read(new File((PATHIMAGE+"logo.png")));
+            } catch (IOException f) {
+                System.out.println("Merci de lancer le jeu depuis l'endroit où est située l'archive JAR.");
+            }
+        }
+    }
 
     // IMAGES
     /**
@@ -91,5 +105,27 @@ public class Batview {
         return icon;
     }
 
+    /**
+     * Allows to get a font using its name.
+     * @param fontName the name of the font
+     * @return the font if found
+     */
+    private static Font getFont(String fontName, float size) {
+        Font font = null;
+
+        try {
+            String path = PATHFONTS + fontName;
+            FileInputStream fileInputStream = new FileInputStream(path);
+            InputStream inputStream = new BufferedInputStream(fileInputStream);
+
+            font = Font.createFont(Font.TRUETYPE_FONT, inputStream);
+            font = font.deriveFont(size);
+
+        } catch (IOException | FontFormatException e) {
+            System.err.println("Error : Batview : getFont() : " + e.getMessage());
+        }
+
+        return font;
+    }
 
 }

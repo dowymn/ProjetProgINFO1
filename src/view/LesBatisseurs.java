@@ -6,6 +6,8 @@ import util.Batview;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -19,7 +21,6 @@ public class LesBatisseurs extends JFrame {
 	private JPanel cards;
 
 	private Accueil accueil;
-	private Regles regles;
 	private MenuJouer menuJouer;
 	private NouvellePartie nouvellePartie;
 	private ReprendrePartie reprendrePartie;
@@ -58,7 +59,6 @@ public class LesBatisseurs extends JFrame {
 	private void initialization() {
 
 		this.accueil = new Accueil(this);
-		this.regles = new Regles(this);
 		this.menuJouer = new MenuJouer(this);
 		this.nouvellePartie = new NouvellePartie(this);
 		this.reprendrePartie = new ReprendrePartie(this);
@@ -66,7 +66,6 @@ public class LesBatisseurs extends JFrame {
 		this.cardLayout = new CardLayout();
 		this.cards = new JPanel(new CardLayout());
 		cards.add(accueil, "accueil");
-		cards.add(regles,"regles");
 		cards.add(menuJouer,"menuJouer");
 		cards.add(nouvellePartie,"nouvellePartie");
 		cards.add(reprendrePartie,"reprendrePartie");
@@ -85,6 +84,8 @@ public class LesBatisseurs extends JFrame {
 			cards.remove(reprendrePartie);
 			reprendrePartie = new ReprendrePartie(this);
 			cards.add(reprendrePartie, "reprendrePartie");
+		} else if ( pageName.equals("regles") ) {
+			openRegles();
 		}
 		cardLayout = (CardLayout) cards.getLayout();
 		cardLayout.show(cards,pageName);
@@ -126,6 +127,24 @@ public class LesBatisseurs extends JFrame {
 		this.plateau = new Plateau(this, game, tutos, noTour, end);
 		cards.add(plateau, "plateau");
 		changeView("plateau");
+	}
+
+	/**
+	 * Opens the rules PDF file.
+	 */
+	private void openRegles() {
+		File fichier = new File(Batview.PATHINFOS+"regles.pdf");
+
+		if ( Desktop.isDesktopSupported() ) {
+			Desktop desktop = Desktop.getDesktop();
+			if ( desktop.isSupported(Desktop.Action.OPEN) ) {
+				try {
+					desktop.open(fichier);
+				} catch ( IOException e ) {
+					System.out.println("Error : LesBatisseurs : openRegles() : " + e.getMessage());
+				}
+			}
+		}
 	}
 
 }

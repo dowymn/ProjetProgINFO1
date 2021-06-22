@@ -353,25 +353,27 @@ public abstract class Player implements Serializable {
 		if ( rest < 0 ) {
 			if ( !graphical ) {
 
-				System.out.println("Attention ! Tu n'as pas assez d'actions, il te faudra payer " + rest * (-5) + " ecus.");
-				System.out.println("1: Payer\n2: Ne rien faire");
-				String line;
-				do {
+				if ( !isBot ) {
+					System.out.println("Attention ! Tu n'as pas assez d'actions, il te faudra payer " + rest * (-5) + " ecus.");
+					System.out.println("1: Payer\n2: Ne rien faire");
+					String line;
+					do {
 
-					line = scan.nextLine();
-					if (Utili.intIs(line, 1)) {
-						if (this.nbEcus - (-5) * rest >= 0) {
-							this.earnEcus(-(-5) * rest);
-							this.actions = 0;
-							done = true;
-						} else {
-							System.out.println("Tu n'as pas assez d'écus !");
+						line = scan.nextLine();
+						if (Utili.intIs(line, 1)) {
+							if (this.nbEcus - (-5) * rest >= 0) {
+								this.earnEcus(-(-5) * rest);
+								this.actions = 0;
+								done = true;
+							} else {
+								System.out.println("Tu n'as pas assez d'écus !");
+							}
+						} else if (Utili.intIs(line, 2)) {
+							System.out.println("Aucun écu ne t'a été déboursé et aucune action n'a été effectuée.");
 						}
-					} else if (Utili.intIs(line, 2)) {
-						System.out.println("Aucun écu ne t'a été déboursé et aucune action n'a été effectuée.");
-					}
 
-				} while (!Utili.intIsInto(line, 1, 2));
+					} while (!Utili.intIsInto(line, 1, 2));
+				}
 
 			} else if ( !isBot ){
 				int rep = JOptionPane.showConfirmDialog(null,"Tu n'as pas assez d'actions. Souhaites-tu dépenser " + rest * (-5) + " écus ?","Acheter des actions",JOptionPane.YES_NO_OPTION);
@@ -488,31 +490,10 @@ public abstract class Player implements Serializable {
 	}
 
 	/**
-	 * @return the workers of the player
-	 */
-	public ArrayList<WorkerCard> getPlayerWorkers() {
-		return this.playerWorkers;
-	}
-
-	/**
-	 * @return the buildings of the player
-	 */
-	public ArrayList<BuildingCard> getPlayerBuildings() {
-		return this.playerBuildings;
-	}
-
-	/**
-	 * @return the machines of the player
-	 */
-	public ArrayList<MachineCard> getPlayerMachines() {
-		return this.playerMachines;
-	}
-
-	/**
 	 * Allows to get the workers who don't work on any construction.
 	 * @return an ArrayList that contains the free workers
 	 */
-	public ArrayList<WorkerCard> getFreeWorkers() {
+	private ArrayList<WorkerCard> getFreeWorkers() {
 		ArrayList<WorkerCard> list = new ArrayList<>();
 
 		for ( WorkerCard card : playerWorkers ) {
@@ -528,43 +509,11 @@ public abstract class Player implements Serializable {
 	 * Allows to get the machines that are not used on any construction.
 	 * @return an ArrayList that contains the free machines
 	 */
-	public ArrayList<MachineCard> getFreeMachines() {
+	private ArrayList<MachineCard> getFreeMachines() {
 		ArrayList<MachineCard> list = new ArrayList<>();
 
 		for ( MachineCard card : playerMachines ) {
 			if ( card.getState() == BuildingState.FINISHED && !card.getIsUsed() ) {
-				list.add( card );
-			}
-		}
-
-		return list;
-	}
-
-	/**
-	 * Allows to get the buildings whose construction is in progress.
-	 * @return an ArrayList that contains buildings
-	 */
-	public ArrayList<BuildingCard> getInProgressBuildings() {
-		ArrayList<BuildingCard> list = new ArrayList<>();
-
-		for ( BuildingCard card : playerBuildings ) {
-			if ( card.getState() == BuildingState.INPROGRESS ) {
-				list.add( card );
-			}
-		}
-
-		return list;
-	}
-
-	/**
-	 * Allows to get the machines whose construction is in progress.
-	 * @return an ArrayList that contains the machines
-	 */
-	public ArrayList<MachineCard> getInProgressMachines() {
-		ArrayList<MachineCard> list = new ArrayList<>();
-
-		for ( MachineCard card : playerMachines ) {
-			if ( card.getState() == BuildingState.INPROGRESS ) {
 				list.add( card );
 			}
 		}
